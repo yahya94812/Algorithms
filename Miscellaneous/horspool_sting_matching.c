@@ -1,15 +1,12 @@
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
 
 #define ASCII_SIZE 256
-
-char pattern[ASCII_SIZE], text[ASCII_SIZE], shiftTable[ASCII_SIZE];
+#define MAX_SIZE 300
+char pattern[MAX_SIZE], text[MAX_SIZE], shift_table[ASCII_SIZE];
 int pattern_length, text_length;
 
-// Function declarations
-void createShiftTable();
-int horsepool();
+int horse_pool();
 
 int main() {
     printf("Enter the text: ");
@@ -21,7 +18,7 @@ int main() {
     pattern_length = strlen(pattern);
     text_length = strlen(text);
 
-    int found_at = horsepool();
+    int found_at = horse_pool();
 
     if (found_at == -1)
         printf("Pattern not found.\n");
@@ -32,38 +29,40 @@ int main() {
 }
 
 // Create the shift table used in Horspool algorithm
-void createShiftTable() {
+void create_shift_table() {
     for (int i = 0; i < ASCII_SIZE; i++) {
-        shiftTable[i] = pattern_length;
+        shift_table[i] = pattern_length;
     }
 
     for (int j = 0; j < pattern_length - 1; j++) {
         int char_index = (int)pattern[j];
-        shiftTable[char_index] = pattern_length - 1 - j;
+        shift_table[char_index] = (pattern_length - 1) - j; //use left most index_location for shifting
     }
+
+    return;
 }
 
 // Horspool string matching algorithm
-int horsepool() {
-    createShiftTable();
+int horse_pool() {
+    create_shift_table();
 
-    int i = pattern_length - 1;
+    int i = pattern_length - 1; //i points to the chars of text string
 
-    while (i <= text_length - 1) {
-        int k = 0;
+    while (i < text_length) {
+        int j = 0; //j points to the chars of pattern string
 
         // Compare pattern from right to left
-        while (k < pattern_length && pattern[pattern_length - 1 - k] == text[i - k]) {
-            k++;
+        while (j < pattern_length && pattern[(pattern_length - 1) - j] == text[i - j]) {
+            j++;
         }
 
-        if (k == pattern_length) {
+        if (j == pattern_length) {
             // Match found
-            return i - pattern_length + 1;
+            return i - pattern_length + 1; //+1 for pointing the first (left most) char of matching string
         } else {
             // Mismatch: use shift table
-            int shift_char = (int)text[i];
-            i += shiftTable[shift_char];
+            int char_index = (int)text[i];
+            i += shift_table[char_index];
         }
     }
 
